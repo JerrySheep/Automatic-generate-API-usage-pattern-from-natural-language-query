@@ -61,6 +61,7 @@ In training python file, my parameters is setted as follows:
 My tool is generated in the Intellij IDEA and used as a plugin platform tool.
 
 Here is my tool bar GUI:
+
 ![tool_bar](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/toolBar.png)
 
 Here is my tool seacher GUI:
@@ -69,7 +70,7 @@ Here is my tool seacher GUI:
 Here is my tool result GUI:
 ![tool_result](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/toolResult.png)
 
-
+You can find the information for generate a plugin tool in file "???"
 
 
 
