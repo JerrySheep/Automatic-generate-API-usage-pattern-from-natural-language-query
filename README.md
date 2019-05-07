@@ -60,8 +60,15 @@ In training python file, my parameters is setted as follows:
 ## The seventh is develop the tool
 My tool is generated in the Intellij IDEA and used as a plugin platform tool.
 
-Here is my tool GUI:
-![]
+Here is my tool bar GUI:
+![tool_bar](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/toolBar.png)
+
+Here is my tool seacher GUI:
+![tool_search](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/toolSearch.png)
+
+Here is my tool result GUI:
+![tool_result](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/toolResult.png)
+
 
 
 
