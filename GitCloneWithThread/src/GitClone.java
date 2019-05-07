@@ -58,7 +58,7 @@ public class GitClone implements Runnable{
 
             CloneCommand cc = Git.cloneRepository().setURI(url);
 
-            UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider("435390541@qq.com", "yanhao0308");
+            UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider("your github account", "your github password");
             cc.setCredentialsProvider(user);
 
             cc.setDirectory(new File(localPath)).call();

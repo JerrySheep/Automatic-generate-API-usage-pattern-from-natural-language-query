@@ -72,7 +72,6 @@ public class main {
 //            }
 //        }
 
-        int projectNumber = 31107;
 
         int coreNumber = Runtime.getRuntime().availableProcessors();
         System.out.println("core number: " + coreNumber);
@@ -80,11 +79,8 @@ public class main {
         int threadsNumber = coreNumber * 2 + 2;
 
         while(true){
-            if(GitClone.count.get() < threadsNumber){
-            //if(GitClone.GetCount() < 10){
-                Thread downloadThread = new Thread(new GitClone(localPath, allString.get(projectNumber++), projectNumber));
-                downloadThread.start();
-            }
+	    Thread downloadThread = new Thread(new GitClone(localPath, allString.get(projectNumber++), projectNumber));
+            downloadThread.start();
 
             if(projectNumber == allString.size()){
                 System.out.println("finish");
