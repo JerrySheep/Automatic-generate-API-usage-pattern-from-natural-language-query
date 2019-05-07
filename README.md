@@ -51,3 +51,18 @@ You can find the natural language query data set in file "api_sequence" and API 
 In my project, I use the seq2seq model to train the model with above data set.
 
 My seq2seq model contains a encoder model and a decoder model with attention layer(The luong attention layer).
+
+As you can see in file "model", it has the training python file and evaluation python file.
+
+In training python file, my parameters is setted as follows:
+
+
+## The seventh is develop the tool
+My tool is generated in the Intellij IDEA and used as a plugin platform tool.
+
+Here is my tool GUI:
+![]
+
+
+
+
