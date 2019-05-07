@@ -1,10 +1,10 @@
 # This is a project which automatic generate API usage pattern from natural language query
 
-The first is collect the data from the real GitHub Projects.
+## The first is collect the data from the real GitHub Projects.
 GHTorrent can provide the GitHub project information for us. You can download the csv files from http://www.ghtorrent.org/downloads.html
 
 
-The second is store these csv files into the MYSQL database.
+## The second is store these csv files into the MYSQL database.
 
 In this project, we collect the real Java projects from the database for further learning.
 
