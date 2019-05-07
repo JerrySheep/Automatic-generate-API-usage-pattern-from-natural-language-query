@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="JavaParserWithThread:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/JavaParserWithThread_jar</output-path>
+    <root id="root">
+      <element id="archive" name="JavaParserWithThread.jar">
+        <element id="module-output" name="JavaParserWithThread" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/../../jar包/tianyf-1.0-parseJAVA.jar" />
+    </root>
+  </artifact>
+</component>
