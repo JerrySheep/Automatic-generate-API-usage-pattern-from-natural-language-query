@@ -72,7 +72,7 @@ public class main {
 //            }
 //        }
 
-
+	int projectNumber = 0;
         int coreNumber = Runtime.getRuntime().availableProcessors();
         System.out.println("core number: " + coreNumber);
 
