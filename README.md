@@ -33,4 +33,14 @@ In a java file, we collect the annotation as natural language query sentence and
 
 You can find the information in file "JavaParserWithThread". (some code is from my senior Tian Yanfei, I might rewrite later)
 
+The fifth is filter the data. I collect 500w data and after some operation it only contains 162w data.
 
+Data filter rules:
+
+Rule one: delete some useless control flow sentences. Just like: "if ( ) { } else { }", "for ( ; ; ) { }", "while ( ) { }" and etc.
+
+Rule two: delete the repeate sentences in API usage pattern. Just like: "if ( java.io.File.exists ) { java.io.File.mkdir } if ( java.io.File.exists ) { java.io.File.mkdir }" -> "if ( java.io.File.exists ) { java.io.File.mkdir }" and etc.
+
+Rule three: turn the "if ( API_a ) { } else { API_b }" sentence to "if ( API_a ) { API_b }" sentence. Just like: "if ( java.io.File.exists ) { } else { java.io.File.mkdir }" -> "if ( java.io.File.exists) { java.io.File.mkdir }" and etc.
+
+You can find the natural language query data set in file "api_sequence" and API usage pattern data set in file "api_usage".
