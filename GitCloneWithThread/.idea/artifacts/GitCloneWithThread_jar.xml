@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="GitCloneWithThread:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/GitCloneWithThread_jar</output-path>
+    <root id="root">
+      <element id="archive" name="GitCloneWithThread.jar">
+        <element id="module-output" name="GitCloneWithThread" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/../../jar包/slf4j-api-1.8.0-beta4.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../jar包/org.eclipse.jgit-5.3.0.201903130848-r.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../jar包/javacsv-2.0.jar" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: slf4j-api-1.8.0-beta4.jar org.eclipse.jgit-5.3.0.201903130
+ 848-r.jar javacsv-2.0.jar
+Main-Class: main
+

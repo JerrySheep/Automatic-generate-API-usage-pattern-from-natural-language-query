@@ -5,7 +5,9 @@ GHTorrent can provide the GitHub project information for us. You can download th
 
 
 The second is store these csv files into the MYSQL database.
+
 In this project, we collect the real Java projects from the database for further learning.
+
 You can find the url and other attibutes of every projects and transfer these information to an sentence for git clone.
 
 Database tables just like :
@@ -15,3 +17,12 @@ Database tables just like :
 Database table project just like :
 
 ![database_table_project](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/database_project.png)
+
+From the information provided from the database, you can download the projects with attributes you want. (In my project, I collect the Java Projects which created after 2014 and stars above 10)
+
+
+The third is collect the projects with "git clone".
+
+just like : "git clone https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query.git"
+
+You can find the information in file "GitCloneWithThread".
