@@ -391,6 +391,105 @@ class LuongAttnDecoderRNN(nn.Module):
         # Return output and final hidden state
         return output, hidden
 
+
+def maskNLLLoss(inp, target, mask):
+    nTotal = mask.sum()
+    crossEntropy = -torch.log(torch.gather(inp, 1, target.view(-1, 1)).squeeze(1))
+    loss = crossEntropy.masked_select(mask).mean()
+    loss = loss.to(device)
+    return loss, nTotal.item()
+
+
+def train(input_variable, lengths, target_variable, mask, max_target_len, encoder, decoder, input_embedding, output_embedding,
+          encoder_optimizer, decoder_optimizer, batch_size, clip, max_length=MAX_LENGTH):
+
+    # Zero gradients
+    encoder_optimizer.zero_grad()
+    decoder_optimizer.zero_grad()
+
+    # Set device options
+    input_variable = input_variable.to(device)
+    lengths = lengths.to(device)
+    target_variable = target_variable.to(device)
+    mask = mask.to(device)
+
+    # Initialize variables
+    loss = 0
+    print_losses = []
+    n_totals = 0
+
+    # Forward pass through encoder
+    encoder_outputs, encoder_hidden = encoder(input_variable, lengths)
+
+    # Create initial decoder input (start with SOS tokens for each sentence)
+    decoder_input = torch.LongTensor([[SOS_token for _ in range(batch_size)]])
+    decoder_input = decoder_input.to(device)
+
+    # Set initial decoder hidden state to the encoder's final hidden state
+    decoder_hidden = encoder_hidden[:decoder.n_layers]
+
+    # Determine if we are using teacher forcing this iteration
+    use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
+
+    # Forward batch of sequences through decoder one time step at a time
+    if use_teacher_forcing:
+        for t in range(max_target_len):
+            decoder_output, decoder_hidden = decoder(
+                decoder_input, decoder_hidden, encoder_outputs
+            )
+            # Teacher forcing: next input is current target
+            decoder_input = target_variable[t].view(1, -1)
+            # Calculate and accumulate loss
+            mask_loss, nTotal = maskNLLLoss(decoder_output, target_variable[t], mask[t])
+            loss += mask_loss
+            print_losses.append(mask_loss.item() * nTotal)
+            n_totals += nTotal
+    else:
+        for t in range(max_target_len):
+            decoder_output, decoder_hidden = decoder(
+                decoder_input, decoder_hidden, encoder_outputs
+            )
+            # No teacher forcing: next input is decoder's own current output
+            _, topi = decoder_output.topk(1)
+            decoder_input = torch.LongTensor([[topi[i][0] for i in range(batch_size)]])
+            decoder_input = decoder_input.to(device)
+            # Calculate and accumulate loss
+            mask_loss, nTotal = maskNLLLoss(decoder_output, target_variable[t], mask[t])
+            loss += mask_loss
+            print_losses.append(mask_loss.item() * nTotal)
+            n_totals += nTotal
+
+    # Perform backpropatation
+    loss.backward()
+
+    # Clip gradients: gradients are modified in place
+    _ = nn.utils.clip_grad_norm_(encoder.parameters(), clip)
+    _ = nn.utils.clip_grad_norm_(decoder.parameters(), clip)
+
+    # Adjust model weights
+    encoder_optimizer.step()
+    decoder_optimizer.step()
+
+    return sum(print_losses) / n_totals
+
+
+######################################################################
+# Training iterations
+# ~~~~~~~~~~~~~~~~~~~
+#
+# It is finally time to tie the full training procedure together with the
+# data. The ``trainIters`` function is responsible for running
+# ``n_iterations`` of training given the passed models, optimizers, data,
+# etc. This function is quite self explanatory, as we have done the heavy
+# lifting with the ``train`` function.
+#
+# One thing to note is that when we save our model, we save a tarball
+# containing the encoder and decoder state_dicts (parameters), the
+# optimizers’ state_dicts, the loss, the iteration, etc. Saving the model
+# in this way will give us the ultimate flexibility with the checkpoint.
+# After loading a checkpoint, we will be able to use the model parameters
+# to run inference, or we can continue training right where we left off.
+#
 class GreedySearchDecoder(nn.Module):
     def __init__(self, encoder, decoder):
         super(GreedySearchDecoder, self).__init__()
@@ -437,6 +536,159 @@ def evaluate(encoder, decoder, searcher, input_sequence, output_sequence, senten
     # indexes -> words
     decoded_words = [output_sequence.index2word[token.item()] for token in tokens]
     return decoded_words
+
+
+def evaluateInput(encoder, decoder, searcher, input_sequence, output_sequence ,pair):
+    input_sentence = pair[0]
+    input_sentence = inputNormalizeString(input_sentence)
+    # Evaluate sentence
+    output_words = evaluate(encoder, decoder, searcher, input_sequence, output_sequence, input_sentence)
+    # Format and print response sentence
+    output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD' or x == 'UNK')]
+
+    reference = [output_words]
+    candidate = pair[1].split(' ')
+
+    score = sentence_bleu(reference, candidate)
+    return score
+
+def trainIters(model_name, input_sequence, output_sequence, pairs, encoder, decoder, encoder_optimizer, decoder_optimizer, input_embedding, output_embedding, encoder_n_layers, decoder_n_layers, save_dir, n_iteration, batch_size, print_every, save_every, clip, corpus_name, loadFilename):
+
+    # Load batches for each iteration
+    # training_batches = [batch2TrainData(input_sequence, output_sequence, [random.choice(pairs) for _ in range(batch_size)])
+    #                   for _ in range(n_iteration)]
+
+    # count_out = 0
+    # for word, key in output_sequence.word2index.items():
+    #     if(word != 'SOS' and word != 'EOS' and word !='PAD' and word != 'UNK'):
+    #         print(word)
+    #         print(output_sequence.word2count[word])
+    #     count_out += 1
+    #     if count_out > 1000:
+    #         break
+
+    # training_batches = None
+    # Initializations
+    print('Initializing ...')
+
+    random.shuffle(pairs)
+    print(len(pairs))
+
+    test_deperate_number = len(pairs) // 10
+
+    print("test_deperate_number : {}".format(test_deperate_number))
+
+    test_pairs = pairs[0 : test_deperate_number]
+    print("test_pairs size is : {}".format(len(test_pairs)))
+    pairs = pairs[test_deperate_number : len(pairs)]
+
+    epoches = 20
+    start_iteration = 1
+
+    for epoch in range(20):
+        print_loss = 0
+        # if loadFilename:
+        #     start_iteration = checkpoint['iteration'] + 1
+
+        random.shuffle(pairs)
+
+        validation_deperate_number = len(pairs) * 7 // 9
+        print("validation_deperate_number : {}".format(validation_deperate_number))
+
+        training_pairs = pairs[0 : validation_deperate_number]
+        validation_pairs = pairs[validation_deperate_number: len(pairs)]
+
+        print("training_pairs size is : {}".format(len(training_pairs)))
+        print("validation_pairs size is : {}".format(len(validation_pairs)))
+        print("test_pairs size is : {}".format(len(test_pairs)))
+
+        batch_pairs = list({})
+        epoch_index = 0
+        while True:
+            batch_pair = list({})
+            
+            for pair in training_pairs[epoch_index : epoch_index + batch_size]:
+                batch_pair.append(pair)
+
+            epoch_index += batch_size
+            if epoch_index > len(training_pairs):
+                break
+            batch_pairs.append(batch_pair)
+            
+        training_iteration = len(batch_pairs)
+        #print(batch_pairs[0][0])
+
+        training_batches = [batch2TrainData(input_sequence, output_sequence, batch_pairs[i]) for i in range(training_iteration)]
+
+        # Training loop
+        print("The {} epoch(es) training...".format(epoch + 1))
+        print("training iteration : {}".format(training_iteration))
+        for iteration in range(start_iteration, training_iteration + 1):
+            training_batch = training_batches[iteration - 1]
+            # Extract fields from batch
+            input_variable, lengths, target_variable, mask, max_target_len = training_batch
+
+            # Run a training iteration with batch
+            loss = train(input_variable, lengths, target_variable, mask, max_target_len, encoder,
+                         decoder, input_embedding, output_embedding, encoder_optimizer, decoder_optimizer, batch_size, clip)
+            print_loss += loss
+
+
+            # Print progress
+            if iteration % print_every == 0:
+                print_loss_avg = print_loss / print_every
+                print("Iteration: {}; Percent complete: {:.1f}%; Average loss: {:.4f}".format(iteration, iteration / training_iteration * 100, print_loss_avg))
+                print_loss = 0
+
+            # Save checkpoint
+            if (iteration % save_every == 0):
+                directory = os.path.join(save_dir, model_name, corpus_name, '{}'.format(epoch),  '{}-{}_{}'.format(encoder_n_layers, decoder_n_layers, hidden_size))
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+                torch.save({
+                    'iteration': iteration,
+                    'en': encoder.state_dict(),
+                    'de': decoder.state_dict(),
+                    'en_opt': encoder_optimizer.state_dict(),
+                    'de_opt': decoder_optimizer.state_dict(),
+                    'loss': loss,
+                    'input_sequence_dict': input_sequence.__dict__,
+                    'output_sequence_dict': output_sequence.__dict__,
+                    'input_embedding': input_embedding.state_dict(),
+                    'output_embedding': output_embedding.state_dict()
+                }, os.path.join(directory, '{}_{}.tar'.format(iteration, 'checkpoint')))
+
+        # Validation loop
+        print("The {} epoch(es) validation...".format(epoch + 1))
+        
+        total_validation_bleu_score = 0
+        encoder.eval()
+        decoder.eval()
+        searcher = GreedySearchDecoder(encoder, decoder)
+
+        for pair in validation_pairs:
+            # Initialize search module
+            validation_bleu_socre = evaluateInput(encoder, decoder, searcher, input_sequence, output_sequence, pair)
+
+            print("validation_bleu_socre : {}".format(validation_bleu_socre))
+
+            total_validation_bleu_score += validation_bleu_socre
+
+        print("validation_bleu_score after epoch {} : {:.4f}".format(epoch + 1, total_validation_bleu_score / len(validation_pairs)))
+
+        # Testing loop
+        print("The {} epoch(es) testing...".format(epoch + 1))
+        total_testing_bleu_score = 0
+
+        for pair in test_pairs:
+            # Initialize search module
+            testing_bleu_socre = evaluateInput(encoder, decoder, searcher, input_sequence, output_sequence, pair)
+
+            print("testing_bleu_socre : {}".format(testing_bleu_socre))
+
+            total_testing_bleu_score += testing_bleu_socre
+
+        print("testing_bleu_score after epoch {} : {:.4f}".format(epoch + 1, total_testing_bleu_score / len(test_pairs)))
             
 
 model_name = 'data_model'
@@ -457,7 +709,7 @@ checkpoint_iter = 4000
 #                            '{}_checkpoint.tar'.format(checkpoint_iter))
 
 # Load model if a loadFilename is provided
-loadFilename = os.path.join("checkpoint.tar")
+loadFilename = os.path.join("/Users/yanhao/Desktop/save/checkpoint.tar")  #Your model location
 if loadFilename:
     # If loading on same machine the model was trained on
     print("loading the model")
@@ -502,25 +754,59 @@ def eva(encoder, decoder, searcher, input_sequence, output_sequence):
 
         candidate[:] = [x for x in candidate if not (x == 'EOS' or x == 'PAD' or x == 'SOS')]
 
-        #BLEU4
         score = sentence_bleu(reference, candidate, weights=(0.25, 0.25, 0.25, 0.25))
 
-        print(score)
+        # if score == 1:
+        #     print(pair[0])
+        #     print(' '.join(output_words))
+        #     print(' '.join(candidate))
+        #     print(score)
+        # print(score)
+
+       
+        # output_words = ' '.join(output_words)
+        # rouge = Rouge()
+
+        # rouge_score = rouge.get_scores([output_words], [pair[1]])
+        # print(rouge_score[0]["rouge-1"])
+        # print(rouge_score[0]["rouge-2"])
+        # print(rouge_score[0]["rouge-l"])
 
         return score
 
 total_bleu_test_score = 0
-number = 3000
+number = 300
 
-for i in range(3000):
+for i in range(number):
     score = eva(encoder, decoder, searcher, input_sequence, output_sequence)
 
     total_bleu_test_score += score
 
 print("total_score: {}".format(total_bleu_test_score / number))
 
-print('finish evaluate!')
+def evaluateInput(encoder, decoder, searcher, input_sequence, output_sequence):
+    input_sentence = ''
+    while(1):
+        try:
+            # Get input sentence
+            input_sentence = input('> ')
+            # Check if it is quit case
+            if input_sentence == 'q' or input_sentence == 'quit': break
+            # Normalize sentence
+            input_sentence = normalizeString(input_sentence)
+            # Evaluate sentence
+            output_words = evaluate(encoder, decoder, searcher,  input_sequence, output_sequence, input_sentence)
+            # Format and print response sentence
+            output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD' or x == 'UNK')]
+            print('Bot:', ' '.join(output_words))
 
+        except KeyError:
+            print("Error: Encountered unknown word.")
+
+evaluateInput(encoder, decoder, searcher, input_sequence, output_sequence)
+
+
+print('Finish evaluate!')
 
 
 ######################################################################
