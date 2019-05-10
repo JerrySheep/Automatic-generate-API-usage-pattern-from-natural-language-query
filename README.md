@@ -1,10 +1,10 @@
 # This is a project which automatic generate API usage pattern from natural language query
 
-## The first is collect the data from the real GitHub Projects.
+## First: collect the data from the real GitHub Projects.
 GHTorrent can provide the GitHub project information for us. You can download the csv files from http://www.ghtorrent.org/downloads.html
 
 
-## The second is store these csv files into the MYSQL database.
+## Second: store these csv files into the MYSQL database.
 
 In this project, we collect the real Java projects from the database for further learning.
 
@@ -17,19 +17,19 @@ Database table project just like :
 From the information provided from the database, you can download the projects with attributes you want. (In my project, I collect the Java Projects which created after 2014 and stars above 10)
 
 
-## The third is collect the projects with "git clone".
+## Third: collect the projects with "git clone".
 
 just like : "git clone https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query.git"
 
 You can find the information in file "GitCloneWithThread".
 In my project, I collect about 45k Java projects. (It took lots of time, you can have another try. If it is possible, tell me~)
 
-## The forth is collect the data set.
+## Forth: collect the data set.
 In a java file, we collect the annotation as natural language query sentence and collect the source code(transfered by abstrct syntax tree later) as API usage pattern sentence.
 
 You can find the information in file "JavaParserWithThread". (some code is from my senior Tian Yanfei, I might rewrite later)
 
-## The fifth is filter the data.
+## Fifth: filter the data.
 I collect 500w data and after some operation it only contains 162w data.
 
 Data filter rules:
@@ -46,7 +46,7 @@ After filter, my data looks like this:
 
 As the data file size is too large to upload to this location, you can email me for the data. (jerrysheep0308@gmail.com & 435390541@qq.com) Both of them is possible.
 
-## The sixth is train the model.
+## Sixth: train the model.
 
 In my project, I use the seq2seq model to train the model with above data set.
 
@@ -57,7 +57,7 @@ As you can see in file "model", it has the training python file and evaluation p
 In training python file, my parameters is setted as follows:
 
 
-## The seventh is develop the tool
+## Seventh: develop the tool
 My tool is generated in the Intellij IDEA and used as a plugin platform tool.
 
 Here is my tool bar GUI:
