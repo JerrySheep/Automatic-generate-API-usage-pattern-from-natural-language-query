@@ -44,7 +44,9 @@ After filter, my data looks like this:
 
 ![data_pic](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/data.png)
 
-You can email me for the data. (jerrysheep0308@gmail.com & 435390541@qq.com) Both of them is possible.
+You can download the data from https://pan.baidu.com/s/1b0Yi8aY_KeVNc5xoz2nmug
+
+You can email me it there are some problems occured during the download process. (jerrysheep0308@gmail.com & 435390541@qq.com) Both of them is possible.
 
 ## Sixth: train the model.
 
