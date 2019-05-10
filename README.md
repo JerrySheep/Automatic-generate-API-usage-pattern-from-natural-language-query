@@ -44,7 +44,11 @@ Rule two: delete the repeate sentences in API usage pattern. Just like: "if ( ja
 
 Rule three: turn the "if ( API_a ) { } else { API_b }" sentence to "if ( API_a ) { API_b }" sentence. Just like: "if ( java.io.File.exists ) { } else { java.io.File.mkdir }" -> "if ( java.io.File.exists) { java.io.File.mkdir }" and etc.
 
-You can find the natural language query data set in file "api_sequence" and API usage pattern data set in file "api_usage".
+After filter, my data looks like this:
+
+![data_pic](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/data.png)
+
+As the data file size is too large to upload to this location, you can email me for the data. (jerrysheep0308@gmail.com & 435390541@qq.com) Both of them is possible.
 
 ## The sixth is train the model.
 
