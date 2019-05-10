@@ -70,7 +70,7 @@ Here is my tool seacher GUI:
 Here is my tool result GUI:
 ![tool_result](https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query/blob/master/img/toolResult.png)
 
-You can find the information for generate a plugin tool in file "???"
+You can find the information for generate a plugin tool in file "APITool" and find the needed file "pythonTool.py" in file "model".
 
 
 
