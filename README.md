@@ -16,7 +16,6 @@ Database table project just like :
 
 From the information provided from the database, you can download the projects with attributes you want. (In my project, I collect the Java Projects which created after 2014 and stars above 10)
 
-
 ## Third: collect the projects with "git clone".
 
 just like : "git clone https://github.com/JerrySheep/Automatic-generate-API-usage-pattern-from-natural-language-query.git"
