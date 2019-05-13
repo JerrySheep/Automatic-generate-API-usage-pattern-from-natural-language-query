@@ -1,5 +1,5 @@
 # This is a project which automatic generate API usage pattern from natural language query
-this is the dev branch
+
 ## First: collect the data from the real GitHub Projects.
 GHTorrent can provide the GitHub project information for us. You can download the csv files from http://www.ghtorrent.org/downloads.html
 
